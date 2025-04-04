@@ -14,7 +14,7 @@ import (
 func DatabaseConnect() *gorm.DB {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Cannot load config: ", err)
+		log.Fatal("Cannot load config!: ", err)
 	}
 	var (
 		port     = os.Getenv("DB_PORT")
