@@ -6,6 +6,7 @@ import (
 
 	"github.com/XuanHieuHo/go-assignment/models"
 	"github.com/XuanHieuHo/go-assignment/requests"
+	"github.com/XuanHieuHo/go-assignment/uow"
 )
 
 // CreateUser implements UserService.
@@ -16,5 +17,5 @@ func (u *UserServiceImpl) CreateUser(ctx context.Context, req requests.CreateUse
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
-	return u.Manager.New(ctx).UserRepo().Create(ctx, user)
+	return uow.New(u.db, ctx).UserRepo().Create(ctx, user)
 }

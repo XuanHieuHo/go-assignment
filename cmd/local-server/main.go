@@ -5,6 +5,7 @@ import (
 
 	"github.com/XuanHieuHo/go-assignment/config"
 	"github.com/XuanHieuHo/go-assignment/controllers"
+	"github.com/XuanHieuHo/go-assignment/middleware"
 	"github.com/XuanHieuHo/go-assignment/routers"
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,7 @@ func main() {
 
 	router := gin.Default()
 	api := router.Group("/api")
+	api.Use(middleware.ErrorHandler())
 
 	routers.UserRouter(api, registry.UserController)
 	routers.FriendshipRouter(api, registry.FriendController)

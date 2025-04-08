@@ -13,7 +13,7 @@ import (
 func (n *FriendshipServiceImpl) CreateFriendship(ctx context.Context, req requests.CreateFriendshipRequest) (*models.FriendShip, error) {
 
 	var createdFriendship *models.FriendShip
-	if err := n.Manager.Do(ctx, func(uow uow.UnitOfWork) error {
+	if err := uow.Do(n.db, ctx, func(uow uow.UnitOfWork) error {
 		user1, err := uow.UserRepo().GetUserByEmail(ctx, req.FristEmail)
 		if err != nil {
 			return err
@@ -25,7 +25,7 @@ func (n *FriendshipServiceImpl) CreateFriendship(ctx context.Context, req reques
 		}
 
 		if user1.ID == user2.ID {
-			return pkgerrors.New("cannot create friendship with yourself")
+			return pkgerrors.New("BR: cannot create friendship with yourself")
 		}
 
 		fristUser, secondUser := user1, user2
@@ -38,7 +38,7 @@ func (n *FriendshipServiceImpl) CreateFriendship(ctx context.Context, req reques
 			return err
 		}
 		if isFriend {
-			return pkgerrors.New("friendship already exists")
+			return pkgerrors.New("BR: friendship already exists")
 		}
 
 		friendship := models.FriendShip{

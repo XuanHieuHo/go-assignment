@@ -1,11 +1,13 @@
 package services
 
-import "github.com/XuanHieuHo/go-assignment/uow"
+import (
+	"gorm.io/gorm"
+)
 
 type FriendshipServiceImpl struct {
-	Manager *uow.Manager
+	db *gorm.DB
 }
 
-func NewFriendshipServiceImpl(manager *uow.Manager) FriendshipService {
-	return &FriendshipServiceImpl{Manager: manager}
+func NewFriendshipServiceImpl(db *gorm.DB) FriendshipService {
+	return &FriendshipServiceImpl{db: db}
 }
