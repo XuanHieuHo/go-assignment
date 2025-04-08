@@ -1,11 +1,13 @@
 package services
 
-import "github.com/XuanHieuHo/go-assignment/uow"
+import (
+	"gorm.io/gorm"
+)
 
 type UserServiceImpl struct {
-	Manager *uow.Manager
+	db *gorm.DB
 }
 
-func NewUserServiceImpl(manager *uow.Manager) UserService {
-	return &UserServiceImpl{Manager: manager}
+func NewUserServiceImpl(db *gorm.DB) UserService {
+	return &UserServiceImpl{db: db}
 }

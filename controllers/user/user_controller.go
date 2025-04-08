@@ -7,7 +7,6 @@ import (
 	"github.com/XuanHieuHo/go-assignment/requests"
 	"github.com/XuanHieuHo/go-assignment/responses"
 	userService "github.com/XuanHieuHo/go-assignment/services/user"
-	"github.com/XuanHieuHo/go-assignment/util"
 	"github.com/gin-gonic/gin"
 	"github.com/go-faker/faker/v4"
 )
@@ -33,61 +32,32 @@ func NewUserResponse(user models.User) responses.UserResponse {
 func (controller *UserController) CreateUser(ctx *gin.Context) {
 	var req requests.CreateUserRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, util.OutlineResponse{
-			Code:   http.StatusBadRequest,
-			Status: "Bad Request",
-			Data: util.ErrorResponse{
-				Error: err.Error(),
-			},
-		},
-		)
+		ctx.Error(err)
 		return
 	}
 
 	user, err := controller.UserService.CreateUser(ctx, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, util.OutlineResponse{
-			Code:   http.StatusInternalServerError,
-			Status: "Internal Server",
-			Data: util.ErrorResponse{
-				Error: err.Error(),
-			},
-		},
-		)
+		ctx.Error(err)
 		return
 	}
 	rsp := NewUserResponse(*user)
-	ctx.JSON(http.StatusOK, util.OutlineResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   rsp,
-	})
+	responses.NewResponseBuilder().
+		WithCode(http.StatusOK).
+		WithData(rsp).
+		RespondWithJSON(ctx)
 }
 
 func (controller *UserController) ListUser(ctx *gin.Context) {
 	var req requests.ListRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, util.OutlineResponse{
-			Code:   http.StatusBadRequest,
-			Status: "Bad Request",
-			Data: util.ErrorResponse{
-				Error: err.Error(),
-			},
-		},
-		)
+		ctx.Error(err)
 		return
 	}
 
 	users, err := controller.UserService.GetListUser(ctx, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, util.OutlineResponse{
-			Code:   http.StatusInternalServerError,
-			Status: "Internal Server",
-			Data: util.ErrorResponse{
-				Error: err.Error(),
-			},
-		},
-		)
+		ctx.Error(err)
 		return
 	}
 	var rsp []responses.UserResponse
@@ -95,11 +65,11 @@ func (controller *UserController) ListUser(ctx *gin.Context) {
 		// rsp := newUserResponse(user)
 		rsp = append(rsp, NewUserResponse(user))
 	}
-	ctx.JSON(http.StatusOK, util.OutlineResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   rsp,
-	})
+
+	responses.NewResponseBuilder().
+		WithCode(http.StatusOK).
+		WithData(rsp).
+		RespondWithJSON(ctx)
 
 }
 
@@ -109,22 +79,12 @@ func (controller *UserController) Create1000Users(ctx *gin.Context) {
 		req.Email = faker.Email()
 		req.Name = faker.Name()
 		_, err := controller.UserService.CreateUser(ctx, req)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, util.OutlineResponse{
-				Code:   http.StatusInternalServerError,
-				Status: "Internal Server",
-				Data: util.ErrorResponse{
-					Error: err.Error(),
-				},
-			},
-			)
-			return
-		}
+		ctx.Error(err)
 	}
-	ctx.JSON(http.StatusOK, util.OutlineResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   "Create 1000 Users Successfully",
-	})
+
+	responses.NewResponseBuilder().
+		WithCode(http.StatusOK).
+		WithData("Create 1000 Users Successfully").
+		RespondWithJSON(ctx)
 
 }
