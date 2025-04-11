@@ -5,7 +5,7 @@ import (
 	userController "github.com/XuanHieuHo/go-assignment/controllers/user"
 	friendshipService "github.com/XuanHieuHo/go-assignment/services/friendship"
 	userService "github.com/XuanHieuHo/go-assignment/services/user"
-	"gorm.io/gorm"
+	"github.com/XuanHieuHo/go-assignment/uow"
 )
 
 type ControllerRegistery struct {
@@ -13,10 +13,10 @@ type ControllerRegistery struct {
 	FriendController *friendshipController.FriendshipController
 }
 
-func NewGormControllerRegistery(db *gorm.DB) *ControllerRegistery {
+func NewGormControllerRegistery(uow uow.UnitOfWork) *ControllerRegistery {
 	// service
-	userService := userService.NewUserServiceImpl(db)
-	friendshipService := friendshipService.NewFriendshipServiceImpl(db)
+	userService := userService.NewUserServiceImpl(uow)
+	friendshipService := friendshipService.NewFriendshipServiceImpl(uow)
 
 	// controller
 	return &ControllerRegistery{

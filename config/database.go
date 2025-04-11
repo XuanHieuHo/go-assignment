@@ -15,11 +15,11 @@ func DatabaseConnect() *gorm.DB {
 	}
 
 	var (
-		port     = config.DBPort
-		host     = config.DBHost
-		user     = config.DBUsername
-		password = config.DBPassword
-		dbName   = config.DBName
+		port     = config.DBConfig.DBPort
+		host     = config.DBConfig.DBHost
+		user     = config.DBConfig.DBUsername
+		password = config.DBConfig.DBPassword
+		dbName   = config.DBConfig.DBName
 	)
 
 	connString := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbName)

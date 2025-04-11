@@ -5,6 +5,8 @@ import (
 
 	"github.com/XuanHieuHo/go-assignment/models"
 	"github.com/XuanHieuHo/go-assignment/requests"
+
+	pkgerrors "github.com/pkg/errors"
 )
 
 // GetFriendOfUser implements FriendshipRepository.
@@ -15,5 +17,5 @@ func (f *FriendshipRepositoryImpl) GetFriendOfUser(ctx context.Context, userID u
 	var friends []models.FriendShip
 
 	err := f.db.WithContext(ctx).Limit(int(limit)).Offset(int(offset)).Where("user_id = ? OR friend_id = ?", userID, userID).Find(&friends).Error
-	return &friends, err
+	return &friends, pkgerrors.WithStack(err)
 }

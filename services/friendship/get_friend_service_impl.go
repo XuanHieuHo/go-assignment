@@ -5,23 +5,22 @@ import (
 
 	"github.com/XuanHieuHo/go-assignment/models"
 	"github.com/XuanHieuHo/go-assignment/requests"
-	"github.com/XuanHieuHo/go-assignment/uow"
 )
 
 // GetFriendOfUser implements FriendshipService.
 func (n *FriendshipServiceImpl) GetFriendOfUser(ctx context.Context, email string, reqList requests.ListRequest) (*[]models.User, error) {
-	user, err := uow.New(n.db, ctx).UserRepo().GetUserByEmail(ctx, email)
+	user, err := n.uow.UserRepo().GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
 
-	friendships, err := uow.New(n.db, ctx).FriendshipRepo().GetFriendOfUser(ctx, user.ID, reqList)
+	friendships, err := n.uow.FriendshipRepo().GetFriendOfUser(ctx, user.ID, reqList)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(*friendships) <= 0 {
-		return nil, err
+	if len(*friendships) == 0 {
+		return nil, nil
 	}
 
 	var friendIDs []uint
@@ -33,11 +32,7 @@ func (n *FriendshipServiceImpl) GetFriendOfUser(ctx context.Context, email strin
 		}
 	}
 
-	if len(friendIDs) <= 0 {
-		return nil, err
-	}
-
-	friends, err := uow.New(n.db, ctx).UserRepo().GetUserByIDs(ctx, friendIDs)
+	friends, err := n.uow.UserRepo().GetUserByIDs(ctx, friendIDs)
 	if err != nil {
 		return nil, err
 	}
