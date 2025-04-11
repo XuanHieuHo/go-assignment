@@ -11,9 +11,9 @@ import (
 )
 
 func (n *FriendshipServiceImpl) CreateFriendship(ctx context.Context, req requests.CreateFriendshipRequest) (*models.FriendShip, error) {
-
+	
 	var createdFriendship *models.FriendShip
-	if err := uow.Do(n.db, ctx, func(uow uow.UnitOfWork) error {
+	if err := n.uow.Do(ctx, func(uow uow.UnitOfWork) error {
 		user1, err := uow.UserRepo().GetUserByEmail(ctx, req.FristEmail)
 		if err != nil {
 			return err

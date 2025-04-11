@@ -1,6 +1,10 @@
 package responses
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 type CommonResponse struct {
 	Code    int         `json:"code"`
@@ -9,39 +13,49 @@ type CommonResponse struct {
 	Errors  interface{} `json:"errors,omitempty"`
 }
 
-
-type ResponseBuilder struct {
-	response CommonResponse
+type ErrApi struct {
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Errors  interface{} `json:"errors"`
 }
 
-func NewResponseBuilder() *ResponseBuilder {
-	return &ResponseBuilder{response: CommonResponse{}}
+func OK(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusOK, CommonResponse{
+		Code: http.StatusOK,
+		Data: data,
+	})
 }
 
-func (b *ResponseBuilder) WithCode(code int) *ResponseBuilder {
-	b.response.Code = code
-	return b
+func Accepted(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusAccepted, CommonResponse{
+		Code: http.StatusAccepted,
+		Data: data,
+	})
 }
 
-func (b *ResponseBuilder) WithMessage(message string) *ResponseBuilder {
-	b.response.Message = message
-	return b
+func BadRequest(message string, errors interface{}) *ErrApi {
+	return &ErrApi{
+		Code:    http.StatusBadRequest,
+		Message: message,
+		Errors:  errors,
+	}
 }
 
-func (b *ResponseBuilder) WithData(data interface{}) *ResponseBuilder {
-	b.response.Data = data
-	return b
+func Unauthorized(message string) *ErrApi {
+	return &ErrApi{
+		Code:    http.StatusUnauthorized,
+		Message: message,
+	}
 }
 
-func (b *ResponseBuilder) WithErrors(errors interface{}) *ResponseBuilder {
-	b.response.Errors = errors
-	return b
+func (e *ErrApi) Error() string {
+	return e.Message
 }
 
-func (b *ResponseBuilder) Build() CommonResponse {
-	return b.response
-}
-
-func (b *ResponseBuilder) RespondWithJSON(ctx *gin.Context) {
-	ctx.JSON(b.response.Code, b.response)
+func Err(ctx *gin.Context, code int, message string, errors interface{}) *ErrApi {
+	return &ErrApi{
+		Code:    code,
+		Message: message,
+		Errors:  errors,
+	}
 }

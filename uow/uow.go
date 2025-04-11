@@ -9,6 +9,7 @@ import (
 )
 
 type UnitOfWork interface {
+	Do(ctx context.Context, fn func(uow UnitOfWork) error) error
 	UserRepo() userRepo.UserRepository
 	FriendshipRepo() friendshipRepo.FriendshipRepository
 }
@@ -19,12 +20,12 @@ type UnitOfWorkImpl struct {
 	friendshipRepo friendshipRepo.FriendshipRepository
 }
 
-func New(db *gorm.DB, ctx context.Context) UnitOfWork {
-	return &UnitOfWorkImpl{db: db.WithContext(ctx)}
+func NewUnitOfWorkImpl(db *gorm.DB) UnitOfWork {
+	return &UnitOfWorkImpl{db: db}
 }
 
-func Do(db *gorm.DB, ctx context.Context, fn func(uow UnitOfWork) error) error {
-	return db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+func (u *UnitOfWorkImpl) Do(ctx context.Context, fn func(uow UnitOfWork) error) error {
+	return u.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		uow := &UnitOfWorkImpl{db: tx}
 		return fn(uow)
 	})

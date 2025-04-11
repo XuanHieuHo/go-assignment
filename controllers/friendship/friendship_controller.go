@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"net/http"
-
 	userController "github.com/XuanHieuHo/go-assignment/controllers/user"
 	"github.com/XuanHieuHo/go-assignment/requests"
 	"github.com/XuanHieuHo/go-assignment/responses"
@@ -18,51 +16,44 @@ func NewFriendshipController(friendshipService friendService.FriendshipService) 
 	return &FriendshipController{FriendshipService: friendshipService}
 }
 
-func (controller *FriendshipController) CreateFriendship(ctx *gin.Context) {
+func (controller *FriendshipController) CreateFriendship(ctx *gin.Context) error {
 	var req requests.CreateFriendshipRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.Error(err)
-		return
+		return responses.BadRequest("Input are invalid", err)
 	}
 
 	friendship, err := controller.FriendshipService.CreateFriendship(ctx, req)
 	if err != nil {
-		ctx.Error(err)
-		return
+		return err
 	}
 
-	responses.NewResponseBuilder().
-		WithCode(http.StatusOK).
-		WithData(friendship).
-		RespondWithJSON(ctx)
+	responses.OK(ctx, friendship)
+	return nil
 }
 
-func (controller *FriendshipController) GetFriendOfUser(ctx *gin.Context) {
+func (controller *FriendshipController) GetFriendOfUser(ctx *gin.Context) error {
 	var reqList requests.ListRequest
 	var reqEmail requests.EmailRequest
 	if err := ctx.ShouldBindJSON(&reqEmail); err != nil {
-		ctx.Error(err)
-		return
+		return responses.BadRequest("Input are invalid", err)
 	}
 
 	if err := ctx.ShouldBindQuery(&reqList); err != nil {
-		ctx.Error(err)
-		return
+		return responses.BadRequest("Input are invalid", err)
 	}
 
 	friends, err := controller.FriendshipService.GetFriendOfUser(ctx, reqEmail.Email, reqList)
 	if err != nil {
-		ctx.Error(err)
-		return
+		return err
 	}
 
 	var friendsRes []responses.UserResponse
-	for _, f := range *friends {
-		friendsRes = append(friendsRes, userController.NewUserResponse(f))
+	if friends != nil {
+		for _, f := range *friends {
+			friendsRes = append(friendsRes, userController.NewUserResponse(f))
+		}
 	}
 
-	responses.NewResponseBuilder().
-		WithCode(http.StatusOK).
-		WithData(friendsRes).
-		RespondWithJSON(ctx)
+	responses.OK(ctx, friendsRes)
+	return nil
 }
